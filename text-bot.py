@@ -7,7 +7,7 @@ import json
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
-import schedule
+from apscheduler.schedulers.background import BackgroundScheduler
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -15,7 +15,8 @@ import urllib3
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-import datetime
+from datetime import datetime
+import sched
 
 
 
@@ -34,15 +35,24 @@ def main():
             EC.presence_of_element_located((By.CLASS_NAME, "Block_blockContainer__2tJ58"))
         )
         date = main.find_elements_by_class_name("ScheduleDay_sdDay__nM9By")
+        time_copy = []
         for time in date:
-            dateClean(time)
-        print(date)
+            time_copy.append(time.text)
+        # for time in time_copy:
+        #     time = datetime.datetime.strptime(time, '%A, %b %d').strftime("%d/%Y")
+        # print(time_copy)
+        s = sched.scheduler(time.time, time.sleep)
+        s.enterabs(datetime(2022, 5, 10, 15, 0, 0, 0).timestamp(), 1, job())
+        s.enterabs(datetime(2022, 5, 10, 15, 0, 0, 500000).timestamp(), 1, job())
+        s.run()
         game_time = main.find_elements_by_class_name("ScheduleStatusText_base__R5PI0")
-        # for time in game_time:
-        #     print(time.text)
+        game_copy = []
+        for time in game_time:
+            game_copy.append(time.text)
         teams = main.find_elements_by_class_name("text-cerulean")
-        # for team in teams:
-        #     print(team.text)
+        teams_copy = []
+        for team in teams:
+            teams_copy.append(team.text)
     finally:
         driver.quit()
 
@@ -105,7 +115,7 @@ def job():
     print("I'm working...")
     email_alert("Hey", "Hello World", reminder_list[0])
     
-schedule.every(10).seconds.do(job)
+
 if __name__ == '__main__':
     main()
     # while True:
